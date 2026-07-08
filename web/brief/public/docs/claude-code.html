@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code - DD Tokens</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1e293b; background: #ffffff; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #f8fafc; border-right: 1px solid #e2e8f0; padding: 2rem 1.5rem; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 1.5rem; color: #0f172a; }
+        .nav-item { display: block; padding: 0.5rem 0.75rem; color: #475569; text-decoration: none; border-radius: 0.375rem; font-size: 0.875rem; transition: all 0.2s; }
+        .nav-item:hover { background: #e2e8f0; color: #0f172a; }
+        .nav-item.active { background: #e0e7ff; color: #4f46e5; font-weight: 500; }
+        .nav-group { margin-bottom: 1.5rem; }
+        .nav-group-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 0.5rem; padding: 0 0.75rem; }
+        .main-content { flex: 1; margin-left: 260px; padding: 3rem; max-width: 900px; }
+        h1 { font-size: 2.25rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; }
+        h2 { font-size: 1.875rem; font-weight: 600; color: #0f172a; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
+        h3 { font-size: 1.5rem; font-weight: 600; color: #0f172a; margin-top: 2rem; margin-bottom: 1rem; }
+        h4 { font-size: 1.25rem; font-weight: 600; color: #0f172a; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1rem; color: #475569; }
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
+        li { margin-bottom: 0.5rem; }
+        pre { background: #1e293b; color: #ffffff; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        pre code { color: #ffffff !important; }
+        code { font-family: 'Monaco', 'Menlo', 'Courier New', monospace; font-size: 0.875rem; }
+        p code, li code { background: #f1f5f9; color: #e11d48; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .code-block { margin: 1.5rem 0; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background: #0f172a; border-radius: 0.5rem 0.5rem 0 0; margin-bottom: -0.5rem; }
+        .code-lang { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; }
+        .copy-btn { background: #334155; color: #e2e8f0; border: none; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #475569; }
+        strong { font-weight: 600; color: #0f172a; }
+        a { color: #4f46e5; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        blockquote { border-left: 4px solid #e2e8f0; padding-left: 1rem; margin: 1.5rem 0; color: #64748b; font-style: italic; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        th, td { padding: 0.75rem; text-align: left; border: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+        td { color: #475569; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>API 文档</h2>
+            <div class="nav-group">
+                <div class="nav-group-title">AI 应用</div>
+                <a href="claude-code.html" class="nav-item active">Claude Code</a>
+                <a href="openclaw.html" class="nav-item ">OpenClaw</a>
+                <a href="hermes.html" class="nav-item ">Hermes Agent</a>
+            </div>
+        </aside>
+        <main class="main-content">
+            
+<h1>Claude Code 配置指南</h1>
+
+<blockquote>在 Claude Code 中使用 DDTokens 作为 API 后端</blockquote>
+
+<h2>准备工作</h2>
+
+<p>在开始之前，请确保：</p>
+
+<li><strong>已安装 Claude Code</strong></li>
+
+<p>通过 npm 或 pnpm 安装 Claude Code CLI：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code># npm
+npm install -g @anthropic-ai/claude-code
+
+# pnpm
+pnpm install -g @anthropic-ai/claude-code</code></pre>
+</div>
+
+
+<p>或访问 <a href="https://docs.anthropic.com/claude-code" target="_blank">Claude Code 官方文档</a> 获取最新安装方式</p>
+
+<li><strong>已获取 DDTokens API 密钥</strong></li>
+
+<p>登录 <a href="https://ddtokens.cn/console/token" target="_blank">DDTokens 控制台</a> 获取您的 API 密钥（以 <code>sk-</code> 开头）</p>
+
+<p><strong>提示：</strong> 如果还没有 DDTokens 账户，请先在 <a href="https://ddtokens.cn" target="_blank">DDTokens</a> 注册并获取 API 密钥。</p>
+
+<h2>配置方式</h2>
+
+<p>Claude Code 支持多种方式配置自定义 API 端点，您可以将 DDTokens 作为 Anthropic API 的替代后端。</p>
+
+<p>Claude Code 使用两个不同的 JSON 文件：<strong>onboarding 状态</strong> 与 <strong>环境变量</strong> 需分别写入对应文件才能生效。</p>
+
+<h3>先确认 onboarding 已完成</h3>
+
+<p>在用户主目录下的 <code>~/.claude.json</code> 中设置已完成引导（若文件不存在可创建）：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">json</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>{
+  "hasCompletedOnboarding": true
+}</code></pre>
+</div>
+
+
+<p>该文件仅用于 CLI 状态位；API 密钥与 base URL 请写在下面的 <code>settings.json</code> 中。</p>
+
+<h3>方式一：通过 settings.json 配置（推荐）</h3>
+
+<p>在 <code>~/.claude/settings.json</code>（全局）或项目根目录的 <code>.claude/settings.json</code>（项目级）中配置环境变量，无需修改 shell 配置文件：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">json</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "sk-xxxxxxxxxxxx",
+    "ANTHROPIC_BASE_URL": "https://api.ddtokens.cn"
+  }
+}</code></pre>
+</div>
+
+
+<p><strong>全局配置</strong>（推荐，对所有项目生效）：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code># 创建或编辑 ~/.claude/settings.json
+mkdir -p ~/.claude</code></pre>
+</div>
+
+
+<p>然后将上述 JSON 写入 <code>~/.claude/settings.json</code>。</p>
+
+<p><strong>项目级配置</strong>（仅对当前项目生效）：</p>
+
+<p>在项目根目录创建 <code>.claude/settings.json</code>。项目级文件中不要包含 API Key，建议只在全局配置中写 <code>ANTHROPIC_AUTH_TOKEN</code>，项目配置中只写 <code>ANTHROPIC_BASE_URL</code>：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">json</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.ddtokens.cn"
+  }
+}</code></pre>
+</div>
+
+
+<blockquote><strong>注意：</strong> <code>hasCompletedOnboarding</code> 放在 <code>~/.claude.json</code>，<code>env</code> 放在 <code>~/.claude/settings.json</code> 或 <code>.claude/settings.json</code>，不要混写到同一个文件中。</blockquote>
+
+<h3>方式二：通过环境变量配置</h3>
+
+<p>适用于临时使用或 CI/CD 环境。</p>
+
+<h4>macOS / Linux</h4>
+
+<p>在终端中临时设置（当前会话有效）：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>export ANTHROPIC_AUTH_TOKEN="sk-xxxxxxxxxxxx"
+export ANTHROPIC_BASE_URL="https://api.ddtokens.cn"
+claude</code></pre>
+</div>
+
+
+<p>永久配置，将以下内容添加到 <code>~/.bashrc</code> 或 <code>~/.zshrc</code>：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>export ANTHROPIC_AUTH_TOKEN="sk-xxxxxxxxxxxx"
+export ANTHROPIC_BASE_URL="https://api.ddtokens.cn"</code></pre>
+</div>
+
+
+<p>然后执行：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>source ~/.zshrc  # 或 source ~/.bashrc</code></pre>
+</div>
+
+
+<h4>Windows</h4>
+
+<p>在 PowerShell 中临时设置：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>$env:ANTHROPIC_AUTH_TOKEN = "sk-xxxxxxxxxxxx"
+$env:ANTHROPIC_BASE_URL = "https://api.ddtokens.cn"
+claude</code></pre>
+</div>
+
+
+<p>永久配置（系统级）：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>[System.Environment]::SetEnvironmentVariable("ANTHROPIC_AUTH_TOKEN", "sk-xxxxxxxxxxxx", "User")
+[System.Environment]::SetEnvironmentVariable("ANTHROPIC_BASE_URL", "https://api.ddtokens.cn", "User")</code></pre>
+</div>
+
+
+<h3>方式三：使用 <code>.env</code> 文件</h3>
+
+<p>在您的项目根目录创建 <code>.env</code> 文件：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>ANTHROPIC_AUTH_TOKEN=sk-xxxxxxxxxxxx
+ANTHROPIC_BASE_URL=https://api.ddtokens.cn</code></pre>
+</div>
+
+
+<p><strong>注意：</strong> 请将 <code>.env</code> 添加到 <code>.gitignore</code>，避免泄露 API 密钥。</p>
+
+<h3>配置说明</h3>
+
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>填写内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ANTHROPIC_AUTH_TOKEN</strong></td>
+<td>您的 DDTokens API 密钥（<code>sk-xxxxxxxxxxxx</code>）</td>
+</tr>
+<tr>
+<td><strong>ANTHROPIC_BASE_URL</strong></td>
+<td><code>https://api.ddtokens.cn</code></td>
+</tr>
+</tbody>
+</table>
+
+<h2>验证配置</h2>
+
+<p>配置完成后，运行以下命令验证连接是否正常：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>claude --version</code></pre>
+</div>
+
+
+<p>然后启动 Claude Code：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>claude</code></pre>
+</div>
+
+
+<p>如果配置正确，Claude Code 将通过 DDTokens 连接到 Claude 模型并正常响应。</p>
+
+<h2>推荐模型</h2>
+
+<p>通过 DDTokens 您可以使用以下 Claude 模型：</p>
+
+<table>
+<thead>
+<tr>
+<th>模型名称</th>
+<th>模型 ID</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Opus 4.6</td>
+<td><code>claude-opus-4-6</code></td>
+<td>最强大，适合复杂任务</td>
+</tr>
+<tr>
+<td>Claude Sonnet 4.6</td>
+<td><code>claude-sonnet-4-6</code></td>
+<td>性能与速度平衡，推荐日常使用</td>
+</tr>
+<tr>
+<td>Claude Haiku 4.5</td>
+<td><code>claude-haiku-4-5-20251001</code></td>
+<td>快速响应，适合简单任务</td>
+</tr>
+</tbody>
+</table>
+
+<p>切换模型可使用 <code>/model</code> 命令，或在启动时通过 <code>--model</code> 参数指定：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>claude --model claude-sonnet-4-6</code></pre>
+</div>
+
+
+<h2>常见问题</h2>
+
+<h3>Q1: 出现 <code>Authentication error</code> 或 <code>401 Unauthorized</code>？</h3>
+
+<p><strong>解决方案：</strong></p>
+
+<li>检查 <code>ANTHROPIC_AUTH_TOKEN</code> 是否正确设置，确认以 <code>sk-</code> 开头</li>
+<li>在 <a href="https://ddtokens.cn/console/token" target="_blank">DDTokens 控制台</a> 确认密钥未过期</li>
+<li>确认账户余额充足</li>
+
+<h3>Q2: 出现 <code>Connection refused</code> 或无法连接？</h3>
+
+<p><strong>解决方案：</strong></p>
+
+<li>确认 <code>ANTHROPIC_BASE_URL</code> 设置为 <code>https://api.ddtokens.cn</code></li>
+<li>检查网络连接，确保能访问 <code>https://api.ddtokens.cn</code></li>
+<li>如在国内，可能需要配置代理</li>
+
+<h3>Q3: 如何查看当前环境变量配置？</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>echo $ANTHROPIC_AUTH_TOKEN
+echo $ANTHROPIC_BASE_URL</code></pre>
+</div>
+
+
+<h3>Q4: 常见错误码说明</h3>
+
+<table>
+<thead>
+<tr>
+<th>错误信息</th>
+<th>原因</th>
+<th>解决方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>401 Unauthorized</code></td>
+<td>API 密钥无效或过期</td>
+<td>重新获取 API 密钥</td>
+</tr>
+<tr>
+<td><code>429 Too Many Requests</code></td>
+<td>请求频率超限</td>
+<td>稍等片刻后重试</td>
+</tr>
+<tr>
+<td><code>500 Internal Server Error</code></td>
+<td>服务器临时故障</td>
+<td>等待几分钟后重试</td>
+</tr>
+<tr>
+<td><code>insufficient_quota</code></td>
+<td>账户余额不足</td>
+<td>前往控制台充值</td>
+</tr>
+</tbody>
+</table>
+
+<h2>使用技巧</h2>
+
+<h3>1. 在项目中快速启动</h3>
+
+<p>进入项目目录后直接运行 <code>claude</code>，Claude Code 会自动读取项目上下文：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>cd /your/project
+claude</code></pre>
+</div>
+
+
+<h3>2. 常用命令</h3>
+
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/help</code></td>
+<td>查看帮助信息</td>
+</tr>
+<tr>
+<td><code>/model</code></td>
+<td>切换模型</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>清空当前对话</td>
+</tr>
+<tr>
+<td><code>/exit</code> 或 <code>Ctrl+C</code></td>
+<td>退出 Claude Code</td>
+</tr>
+</tbody>
+</table>
+
+<h3>3. 与代码协作</h3>
+
+<p>Claude Code 能够读取和修改项目文件，常用场景：</p>
+
+<ul>
+<li><strong>代码审查</strong> - 让 Claude Code 审查您的代码并提出改进建议</li>
+<li><strong>生成代码</strong> - 描述需求，Claude Code 直接生成并写入文件</li>
+<li><strong>调试错误</strong> - 粘贴错误信息，获取调试建议</li>
+<li><strong>重构代码</strong> - 让 Claude Code 优化代码结构</li>
+</ul>
+
+<h2>支持与帮助</h2>
+
+<p>如果您在使用过程中遇到任何问题：</p>
+
+<ul>
+<li>📚 <a href="https://docs.ddtokens.cn" target="_blank">DDTokens 文档中心</a></li>
+<li>📚 <a href="https://docs.anthropic.com/claude-code" target="_blank">Claude Code 官方文档</a></li>
+</ul>
+
+        </main>
+    </div>
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '已复制';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

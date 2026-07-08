@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hermes Agent - DD Tokens</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #1e293b; background: #ffffff; }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #f8fafc; border-right: 1px solid #e2e8f0; padding: 2rem 1.5rem; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 1.5rem; color: #0f172a; }
+        .nav-item { display: block; padding: 0.5rem 0.75rem; color: #475569; text-decoration: none; border-radius: 0.375rem; font-size: 0.875rem; transition: all 0.2s; }
+        .nav-item:hover { background: #e2e8f0; color: #0f172a; }
+        .nav-item.active { background: #e0e7ff; color: #4f46e5; font-weight: 500; }
+        .nav-group { margin-bottom: 1.5rem; }
+        .nav-group-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 0.5rem; padding: 0 0.75rem; }
+        .main-content { flex: 1; margin-left: 260px; padding: 3rem; max-width: 900px; }
+        h1 { font-size: 2.25rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; }
+        h2 { font-size: 1.875rem; font-weight: 600; color: #0f172a; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
+        h3 { font-size: 1.5rem; font-weight: 600; color: #0f172a; margin-top: 2rem; margin-bottom: 1rem; }
+        h4 { font-size: 1.25rem; font-weight: 600; color: #0f172a; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        p { margin-bottom: 1rem; color: #475569; }
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
+        li { margin-bottom: 0.5rem; }
+        pre { background: #1e293b; color: #ffffff; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        pre code { color: #ffffff !important; }
+        code { font-family: 'Monaco', 'Menlo', 'Courier New', monospace; font-size: 0.875rem; }
+        p code, li code { background: #f1f5f9; color: #e11d48; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.875rem; }
+        .code-block { margin: 1.5rem 0; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 1rem; background: #0f172a; border-radius: 0.5rem 0.5rem 0 0; margin-bottom: -0.5rem; }
+        .code-lang { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; }
+        .copy-btn { background: #334155; color: #e2e8f0; border: none; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #475569; }
+        strong { font-weight: 600; color: #0f172a; }
+        a { color: #4f46e5; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        blockquote { border-left: 4px solid #e2e8f0; padding-left: 1rem; margin: 1.5rem 0; color: #64748b; font-style: italic; }
+        blockquote.warning { border-left-color: #f59e0b; background: #fffbeb; padding: 1rem; border-radius: 0.5rem; }
+        blockquote.tip { border-left-color: #10b981; background: #f0fdf4; padding: 1rem; border-radius: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        th, td { padding: 0.75rem; text-align: left; border: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #0f172a; }
+        td { color: #475569; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 2rem 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>API 文档</h2>
+            <div class="nav-group">
+                <div class="nav-group-title">AI 应用</div>
+                <a href="claude-code.html" class="nav-item">Claude Code</a>
+                <a href="openclaw.html" class="nav-item">OpenClaw</a>
+                <a href="hermes.html" class="nav-item active">Hermes Agent</a>
+            </div>
+        </aside>
+        <main class="main-content">
+            <h1>Hermes Agent</h1>
+
+<blockquote>Nous Research 出品的自学习 AI Agent，内置技能学习闭环 + 跨平台消息网关，可通过 DD Tokens 接入任意大模型</blockquote>
+
+<h2>概述</h2>
+
+<p>Hermes Agent 是 Nous Research 出品的开源 AI Agent，主打「会成长的智能体」——它是目前少数内置<strong>学习闭环</strong>的 Agent：能从对话中自动生成技能、在使用中持续打磨技能、主动提醒自己沉淀知识，并通过 FTS5 全文索引检索过往会话，跨 session 维护对你的用户画像。Hermes 不依赖本地机器，从 5 美元的 VPS 到 GPU 集群、再到几乎零成本闲置的 Serverless 平台都能跑。</p>
+
+<p>通过对接 DD Tokens，您可以获得：</p>
+
+
+
+
+
+<h2>安装</h2>
+
+<h3>Linux / macOS / WSL2 / Termux</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash</code></pre>
+</div>
+
+
+<h3>Windows（PowerShell，原生支持仍在 Early Beta）</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">powershell</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>iex (irm https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.ps1)</code></pre>
+</div>
+
+
+<p>安装器会自动处理 <code>uv</code>、Python 3.11、Node.js、<code>ripgrep</code>、<code>ffmpeg</code> 以及一份便携 Git Bash。</p>
+
+<p>完成后重载 Shell 即可启动：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>source ~/.bashrc    # 或 source ~/.zshrc
+hermes              # 进入终端 UI，开始对话</code></pre>
+</div>
+
+
+<h2>接入 DD Tokens</h2>
+
+<p>Hermes 自带 <code>hermes model</code> 命令，可选 Nous Portal / OpenRouter / OpenAI / 自建端点等。DD Tokens 提供 <strong>OpenAI 兼容 API</strong>，作为「OpenAI 自定义端点」接入即可一次拿到全模型矩阵。</p>
+
+<h3>方式一：通过 <code>hermes model</code> 交互式配置（推荐）</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>hermes model        # 进入模型选择向导</code></pre>
+</div>
+
+
+<p>向导会依次询问：</p>
+
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>输入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider</td>
+<td>选 <code>OpenAI</code>（或 <code>Custom OpenAI endpoint</code>）</td>
+</tr>
+<tr>
+<td>API Base URL</td>
+<td><code>https://api.ddtokens.cn/v1</code></td>
+</tr>
+<tr>
+<td>API Key</td>
+<td>你的 DD Tokens 密钥（<code>sk-...</code>）</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>填入想用的模型 ID，如 <code>gpt-5.4</code>、<code>claude-sonnet-4-6</code>、<code>deepseek-v3.2</code>、<code>gemini-3.1-pro-preview</code></td>
+</tr>
+</tbody>
+</table>
+
+<h3>方式二：通过 <code>hermes config set</code> 直接写入</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>hermes config set llm.provider openai
+hermes config set llm.base_url https://api.ddtokens.cn/v1
+hermes config set llm.api_key sk-你的DD_Tokens密钥
+hermes config set llm.model gpt-5.4</code></pre>
+</div>
+
+
+<p>写入后用 <code>hermes</code> 启动一次验证连接。</p>
+
+<h3>方式三：环境变量（适合 Docker / Serverless 部署）</h3>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>export OPENAI_API_BASE=https://api.ddtokens.cn/v1
+export OPENAI_API_KEY=sk-你的DD_Tokens密钥
+export HERMES_MODEL=gpt-5.4
+hermes</code></pre>
+</div>
+
+
+<p>切换模型只需 <code>hermes model</code> 或修改 <code>HERMES_MODEL</code>，<strong>无需改任何代码</strong>。</p>
+
+<h3>方式四：Anthropic 原生协议（主用 Claude 强烈推荐）</h3>
+
+<p>Hermes 把 Anthropic 作为<strong>一等公民 Provider</strong>，内部 wire protocol 称为 <code>anthropic_messages</code>，相比走 OpenAI 兼容路径有独家加成：</p>
+
+
+
+<p>CLI 配置：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>hermes config set llm.provider anthropic
+hermes config set llm.base_url https://api.ddtokens.cn
+hermes config set llm.api_key sk-你的DD_Tokens密钥
+hermes config set llm.model claude-sonnet-4-6</code></pre>
+</div>
+
+
+<p>环境变量等价写法：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>export ANTHROPIC_BASE_URL=https://api.ddtokens.cn
+export ANTHROPIC_API_KEY=sk-你的DD_Tokens密钥
+export HERMES_MODEL=claude-sonnet-4-6
+hermes</code></pre>
+</div>
+
+
+<blockquote class="warning">
+<p><strong><code>base_url</code> 不要带 <code>/v1</code></strong>：必须是 <code>https://api.ddtokens.cn</code>。Anthropic 协议会自动拼接 <code>/v1/messages</code>，写错会变成 <code>.../v1/v1/messages</code> 触发 404。</p>
+</blockquote>
+
+<p>Hermes 会根据 URL 自动识别协议（路径含 <code>/anthropic</code> 直接走 <code>anthropic_messages</code>）。若使用 LiteLLM 代理等非标准端点，可手动指定：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>hermes config set llm.api_mode anthropic_messages</code></pre>
+</div>
+
+
+
+<h2>常用功能速查</h2>
+
+
+
+<h2>从 OpenClaw 迁移</h2>
+
+<p>如果你之前使用 OpenClaw，Hermes 内置了一键迁移工具：</p>
+
+
+<div class="code-block">
+    <div class="code-header">
+        <span class="code-lang">bash</span>
+        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+    </div>
+    <pre><code>hermes claw migrate              # 交互式完整迁移
+hermes claw migrate --dry-run    # 预览将迁移哪些内容
+hermes claw migrate --preset user-data   # 仅迁移用户数据，不含密钥
+hermes claw migrate --overwrite  # 覆盖冲突</code></pre>
+</div>
+
+
+<p>将自动导入 <code>SOUL.md</code>、记忆 (<code>MEMORY.md</code> / <code>USER.md</code>)、用户技能、命令白名单、消息平台配置、API 密钥（Telegram / OpenRouter / OpenAI / Anthropic / ElevenLabs）、TTS 资源、工作目录指令等。</p>
+
+
+        </main>
+    </div>
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const code = pre.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '已复制';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -30,20 +30,20 @@ func GetTheme() string {
 }
 
 // SetTheme updates the frontend theme atomically.
-// Only "default" and "classic" are accepted; other values are silently ignored.
+// Accepted values: "default", "classic", "brief". Other values are silently ignored.
 func SetTheme(t string) {
-	if t == "default" || t == "classic" {
+	if t == "default" || t == "classic" || t == "brief" {
 		themeValue.Store(t)
 	}
 }
 
-// ThemeAwarePath rewrites legacy /console/* paths to the default-theme
-// equivalents when the active theme is "default".  For "classic" (or any
-// other theme) the path is returned unchanged.  The function only touches
+// ThemeAwarePath rewrites legacy /console/* paths for the classic theme
+// to use the new default-theme route names. For "default" and "brief"
+// themes the path is returned unchanged.  The function only touches
 // known prefixes so it is safe to call with arbitrary suffixes and query
 // strings.
 func ThemeAwarePath(suffix string) string {
-	if GetTheme() != "default" {
+	if GetTheme() != "classic" {
 		return suffix
 	}
 	switch {

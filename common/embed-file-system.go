@@ -48,22 +48,31 @@ func EmbedFolder(fsEmbed embed.FS, targetPath string) static.ServeFileSystem {
 type themeAwareFileSystem struct {
 	defaultFS static.ServeFileSystem
 	classicFS static.ServeFileSystem
+	briefFS   static.ServeFileSystem
 }
 
 func (t *themeAwareFileSystem) Exists(prefix string, path string) bool {
-	if GetTheme() == "classic" {
+	switch GetTheme() {
+	case "classic":
 		return t.classicFS.Exists(prefix, path)
+	case "brief":
+		return t.briefFS.Exists(prefix, path)
+	default:
+		return t.defaultFS.Exists(prefix, path)
 	}
-	return t.defaultFS.Exists(prefix, path)
 }
 
 func (t *themeAwareFileSystem) Open(name string) (http.File, error) {
-	if GetTheme() == "classic" {
+	switch GetTheme() {
+	case "classic":
 		return t.classicFS.Open(name)
+	case "brief":
+		return t.briefFS.Open(name)
+	default:
+		return t.defaultFS.Open(name)
 	}
-	return t.defaultFS.Open(name)
 }
 
-func NewThemeAwareFS(defaultFS, classicFS static.ServeFileSystem) static.ServeFileSystem {
-	return &themeAwareFileSystem{defaultFS: defaultFS, classicFS: classicFS}
+func NewThemeAwareFS(defaultFS, classicFS, briefFS static.ServeFileSystem) static.ServeFileSystem {
+	return &themeAwareFileSystem{defaultFS: defaultFS, classicFS: classicFS, briefFS: briefFS}
 }

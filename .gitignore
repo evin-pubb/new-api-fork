@@ -9,8 +9,10 @@ build
 *.db-journal
 logs
 web/default/dist
+web/brief/dist
 web/classic/dist
-web/node_modules
+web/node_modules/
+web/**/node_modules/
 web/dist
 .env
 one-api
@@ -41,3 +43,4 @@ skills-lock.json
 .local-tests/
 service/relayconvert/chat_responses_live_local_test.go
 service/openaicompat/chat_responses_live_local_test.go
+bun.lock

@@ -19,6 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: new-api
     restart: always
+    oom_score_adj: -500
     command: --log-dir /app/logs
     ports:
       - "80:3000"
@@ -63,7 +64,8 @@ services:
     image: redis:latest
     container_name: redis
     restart: always
-    command: ["redis-server", "--requirepass", "Pass@newapi123456"]
+    oom_score_adj: -200
+    command: ["redis-server", "--requirepass", "Pass@newapi123456", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
     networks:
       - new-api-network
 
@@ -71,6 +73,7 @@ services:
     image: postgres:15
     container_name: postgres
     restart: always
+    oom_score_adj: -300
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: Pass@newapi123456
